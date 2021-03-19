@@ -1,0 +1,101 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>EMI Calculator</title>
+<!-- import bootstrap css -->
+<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"/>
+<!-- import Jquery js -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+</head>
+
+<body>
+ <div class="container">
+	<div class="row">
+		<div id="wrapper" class="col-lg-5 col-sm-offset-3">
+			<h2> EMI Calculator </h2>
+			<form onsubmit="event.preventDefault(); EmiCalculaor();">
+				<table width="95%" align="center">
+					<tr>
+						<td width="147">Loan Amount</td>
+						<td width="193">
+							<input type="number" id="prncipleAmount" name="prncipleAmount" required class="form-control" placeholder="Enter Loan Amount" required/>
+						</td> 
+					</tr>
+					<tr>
+						<td>Interest Rate</td>
+						<td width="193" style="padding-top:10px;">
+							<input type="number" step="any" id="InterestRate" name="InterestRate" required class="form-control" placeholder="Enter Rate of Interest" required/>
+						</td>
+					</tr>
+					<tr>
+						<td>Number Of Installments</td>
+						<td style="padding-top:10px;">
+							<input type="number" id="emiMonth" name="emiMonth" required class="form-control" placeholder="Enter Number of Installment" required/>
+						</td>
+					</tr>
+					<tr>
+						<td style="padding-top:10px; " colspan="2">
+							<div class="row">
+								<div class="col-lg-4 col-lg-offset-4">
+									<button class="btn btn-success btn-block" type="submit"> Find EMI </button>
+								</div>
+							</div>
+						</td>
+					</tr>
+				</table>
+			</form>
+		</div>
+	</div>
+	<div class="row">
+		<div id="result" align="center" class="col-lg-8 col-lg-offset-2" style="color:#006;margin-top:20px;"></div>
+	</div>
+	<div class="row">	
+		<div id="result-table" class="col-lg-12"></div>
+	</div>
+ </div>
+
+<!-- script for calculating EMI -->
+<script>
+function Rupees(number) {
+    if(number !== undefined) {
+        let res = Number(number).toFixed(2).replace(/(\d)(?=(\d{2})+\d\.)/g, '$1,')
+        return ('&#x20B9; '+ res);
+    }
+}
+
+function EmiCalculaor(){
+	var month = $("#emiMonth").val();
+	var rate = $("#InterestRate").val();
+	var pamt = $("#prncipleAmount").val();
+  
+	var monthlyInterestRatio = (rate/100)/12;
+	var monthlyInterest = (monthlyInterestRatio*pamt);
+	var top = Math.pow((1+monthlyInterestRatio),month);
+	var bottom = top -1;
+	var sp = top / bottom;
+	var emi = ((pamt * monthlyInterestRatio) * sp);
+	var result = Rupees(emi);
+	var totalAmount = emi*month;
+	var yearlyInteret = totalAmount-pamt;
+	var downPayment = pamt*(20/100);
+	$("#result").empty();
+	$("#result").append("<table class='table'><tr><td><h3 style='margin: 0;'>Total Loan Amount</h3></td><td align='right'><h3 style='margin: 0;'>"+Rupees(pamt)+"</h3></td></tr><tr><td><h3 style='margin: 0;'>Total Interest Amount</h3></td><td align='right'><h3 style='margin: 0;'>"+Rupees(totalAmount-pamt)+"</h3></td></tr><tr><td><h3 style='margin: 0;'>Total payback amount</h3></td><td align='right'><h3 style='margin: 0;'>"+Rupees(totalAmount)+"</h3></td></tr><tr style='border-bottom: 1px solid #dddddd;'><td><h3 style='margin: 0;'>EMI amount of each Installment</h3></td><td align='right'><h3 style='margin: 0;'>"+result+"</h3></td></tr></table>");
+	$("#result-table").empty();
+	$("#result-table").append("<table class='table'><thead><th>Installment No</th><th>Balance</th><th>EMI Amount</th><th>Interest Amount</th><th>Principle Amount</th><th>Closing Balance</th></thead><tbody id='dataTableBody'></tbody></table>");
+	var pamtFun = pamt;
+	for (i = 0; i < month; i++) {
+		var monthlyIntAmt = (pamtFun*monthlyInterestRatio);
+		var monthlyIntAmtResult = Rupees(monthlyIntAmt);
+		var monthlyPrnc = (emi-monthlyIntAmt);
+		var monthlyPrncResult = Rupees(monthlyPrnc);
+		var closingBal = (pamtFun-monthlyPrnc);
+		var closingBalResult = Rupees(closingBal);
+		var pamtFunResult = Rupees(pamtFun);
+		$("#dataTableBody").append("<tr><td>"+(i+1)+"</td><td>"+pamtFunResult+"</td><td>"+result+"</td><td>"+monthlyIntAmtResult+"</td><td>"+monthlyPrncResult+"</td><td>"+closingBalResult+"</td></tr>");
+		pamtFun = closingBal;
+	}
+}
+</script>
+</body>
+</html>
